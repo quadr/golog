@@ -292,35 +292,48 @@ func SetOnly(only bool) {
 	defaultLogger.SetOnly(only)
 }
 
-type CustomLoggerImpl interface {
-	Log(LogLevel, string, ...interface{})
+type PrefixedLogger struct {
+	l Logger
+	prefix string
 }
 
-type CustomLogger struct {
-	CustomLoggerImpl
-}
-
-func GetCustomLogger(customLogger CustomLoggerImpl) *CustomLogger {
-	return &CustomLogger{ customLogger }
+func MakeLoggerWithPrefix ( l Logger, prefix string ) Logger {
+	if l == nil {
+		return &PrefixedLogger{ defaultLogger, prefix }
+	}
+	return &PrefixedLogger{ l, prefix }
 }
 
 // Helper functions for specific levels
-func (l *CustomLogger) Debug(fm string, v ...interface{}) {
+func (l *PrefixedLogger) Log(lv LogLevel, fm string, v ...interface{}) {
+	l.l.Log(lv, l.prefix + fm, v...)
+}
+
+func (l *PrefixedLogger) Debug(fm string, v ...interface{}) {
 	l.Log(LogDebug, fm, v...)
 }
 
-func (l *CustomLogger) Info(fm string, v ...interface{}) {
+func (l *PrefixedLogger) Info(fm string, v ...interface{}) {
 	l.Log(LogInfo, fm, v...)
 }
 
-func (l *CustomLogger) Warn(fm string, v ...interface{}) {
+func (l *PrefixedLogger) Warn(fm string, v ...interface{}) {
 	l.Log(LogWarn, fm, v...)
 }
 
-func (l *CustomLogger) Error(fm string, v ...interface{}) {
+func (l *PrefixedLogger) Error(fm string, v ...interface{}) {
 	l.Log(LogError, fm, v...)
 }
 
-func (l *CustomLogger) Fatal(fm string, v ...interface{}) {
+func (l *PrefixedLogger) Fatal(fm string, v ...interface{}) {
 	l.Log(LogFatal, fm, v...)
 }
+
+func (l *PrefixedLogger) SetLogLevel(lv LogLevel) {
+	l.l.SetLogLevel(lv)
+}
+
+func (l *PrefixedLogger) SetOnly(only bool) {
+	l.l.SetOnly(only)
+}
+
