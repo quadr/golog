@@ -103,6 +103,24 @@ func makeLogger(w io.Writer) *log.Logger {
 	return log.New(w, "", log.LstdFlags | log.Lshortfile)
 }
 
+func NewFromParams(lv LogLevel, file string) *logger {
+	logMap := make(LogMap)
+	if lv < LogFatal || lv > LogDebug {
+		lv = LogError
+	}
+	var _log *log.Logger
+	if file != "" {
+		_log = openLog(file)
+	} else {
+		_log = makeLogger(os.Stderr)
+	}
+	for l := LogFatal; l <= LogDebug; l++ {
+		logMap[l] = _log
+	}
+
+	return New(logMap, lv, false)
+}
+
 // Creates a new logger object using the flags declared above.
 func newFromFlags() *logger {
 	if !flag.Parsed() {
