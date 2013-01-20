@@ -32,6 +32,7 @@ var logString map[LogLevel]string = map[LogLevel]string{
 	LogInfo:  "INFO",
 	LogDebug: "DEBUG",
 }
+
 func LogString(lv LogLevel) string {
 	if s, ok := logString[lv]; ok {
 		return s
@@ -214,23 +215,23 @@ func (l *logger) Log(lv LogLevel, fm string, v ...interface{}) {
 
 // Helper functions for specific levels
 func (l *logger) Debug(fm string, v ...interface{}) {
-	l.write(LogDebug, fm, v...)
+	l.Log(LogDebug, fm, v...)
 }
 
 func (l *logger) Info(fm string, v ...interface{}) {
-	l.write(LogInfo, fm, v...)
+	l.Log(LogInfo, fm, v...)
 }
 
 func (l *logger) Warn(fm string, v ...interface{}) {
-	l.write(LogWarn, fm, v...)
+	l.Log(LogWarn, fm, v...)
 }
 
 func (l *logger) Error(fm string, v ...interface{}) {
-	l.write(LogError, fm, v...)
+	l.Log(LogError, fm, v...)
 }
 
 func (l *logger) Fatal(fm string, v ...interface{}) {
-	l.write(LogFatal, fm, v...)
+	l.Log(LogFatal, fm, v...)
 }
 
 func (l *logger) SetLogLevel(lv LogLevel) {
@@ -264,23 +265,23 @@ func Log(lv LogLevel, fm string, v ...interface{}) {
 }
 
 func Debug(fm string, v ...interface{}) {
-	defaultLogger.write(LogDebug, fm, v...)
+	defaultLogger.Log(LogDebug, fm, v...)
 }
 
 func Info(fm string, v ...interface{}) {
-	defaultLogger.write(LogInfo, fm, v...)
+	defaultLogger.Log(LogInfo, fm, v...)
 }
 
 func Warn(fm string, v ...interface{}) {
-	defaultLogger.write(LogWarn, fm, v...)
+	defaultLogger.Log(LogWarn, fm, v...)
 }
 
 func Error(fm string, v ...interface{}) {
-	defaultLogger.write(LogError, fm, v...)
+	defaultLogger.Log(LogError, fm, v...)
 }
 
 func Fatal(fm string, v ...interface{}) {
-	defaultLogger.write(LogFatal, fm, v...)
+	defaultLogger.Log(LogFatal, fm, v...)
 }
 
 func SetLogLevel(lv LogLevel) {
@@ -289,4 +290,37 @@ func SetLogLevel(lv LogLevel) {
 
 func SetOnly(only bool) {
 	defaultLogger.SetOnly(only)
+}
+
+type CustomLoggerImpl interface {
+	Log(LogLevel, string, ...interface{})
+}
+
+type CustomLogger struct {
+	CustomLoggerImpl
+}
+
+func GetCustomLogger(customLogger CustomLoggerImpl) *CustomLogger {
+	return &CustomLogger{ customLogger }
+}
+
+// Helper functions for specific levels
+func (l *CustomLogger) Debug(fm string, v ...interface{}) {
+	l.Log(LogDebug, fm, v...)
+}
+
+func (l *CustomLogger) Info(fm string, v ...interface{}) {
+	l.Log(LogInfo, fm, v...)
+}
+
+func (l *CustomLogger) Warn(fm string, v ...interface{}) {
+	l.Log(LogWarn, fm, v...)
+}
+
+func (l *CustomLogger) Error(fm string, v ...interface{}) {
+	l.Log(LogError, fm, v...)
+}
+
+func (l *CustomLogger) Fatal(fm string, v ...interface{}) {
+	l.Log(LogFatal, fm, v...)
 }
